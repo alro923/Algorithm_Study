@@ -56,7 +56,7 @@
 
 ### 서로소 집합 알고리즘
 
-#### 소스 코드
+#### 기본적인 서로소 집합 알고리즘 소스코드 (개선 가능)
 ```py
 # 부모테이블 parent 와 원소 x를 이용해서, x가 속한 집합의 루트 노드 리턴
 # 이때, 한 집합은 하나의 루트 노드를 가지므로 같은 값을 리턴하면 같은 집합에 있는 것이다.
@@ -129,7 +129,7 @@ def find_parent(parent, x):
   - ex. (4,5), (3,4), (2,3), (1,2) 이면 1<-2, 1<-3, 1<-4, 1<-5 이렇게!
   - 쨌든 루트 다 같으니까 {1,2,3,4,5} 인건 변함 X
 
-#### ⚡️ 경로 압축 기법으로 개선된 서로소 집합 소스코드
+#### ⚡️ 경로 압축 기법으로 개선된 서로소 집합 알고리즘 소스코드
 ```py
 def find_parent(parent, x):
   if parent[x] != x: # 루트노드가 아닌경우
@@ -164,4 +164,51 @@ for i in range(1, v+1):
 for i in range(1, v+1):
   print(parent[i], end=' ')
 
+```
+
+
+#### 서로소 집합 알고리즘을 활용한 사이클 판별 소스코드
+```py
+def find_parent(parent, x):
+  if parent[x] != x:
+    return find_parent(parent, parent[x])
+  return parent[x] # 경로 압축
+
+def union_parent(parent, a, b):
+  a = find_parent(parent, a)
+  b = find_parent(parent, b)
+  if a < b: 
+    parent[b] = a
+  else:
+    parent[a] = b
+
+v, e = map(int, input().split())
+parent = [0]*(v+1)
+
+for i in range(1, v+1):
+  parent[i] = i
+
+# 여기부터 다름
+cycle = False # 사이클 발생 여부 초기화
+for i in range(e):
+  a, b = map(int, input().split())
+  if find_parent(parent, a) == find_parent(parent, b):
+    cycle = True
+    break # break 는 가장 가까운 반복문 탈주
+  else:
+    union_parent(parent, a,b)
+
+if cycle:
+  print('사이클 발생함')
+else:
+  print('사이클 발생 안함')
+```
+
+#### 결과
+```
+>> 3 3
+>> 1 2
+>> 1 3
+>> 2 3
+사이클 발생함
 ```
