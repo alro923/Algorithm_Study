@@ -212,3 +212,87 @@ else:
 >> 2 3
 사이클 발생함
 ```
+
+## 신장 트리 자료구조 (Spanning Tree)
+  1. 모든 노드를 포함하면서
+  2. 사이클이 존재하지 않는 그래프
+- 이건 트리의 성립 조건과 같으므로, 신장 '트리'라고 부르는 것이다!
+
+## 최소 신장트리 알고리즘
+N개의 도시가 있을 때, 최소 비용으로 도로를 건설해서 특정 도시가 서로 연결되게 해야하는 문제
+- ex. 3개의 도시 A,B,C가 있고, A와 B가 연결되게 해야한다. (A-C-B 도 A-B 연결된거임)
+  - A와 B 사이 연결 : 23
+  - B와 C 사이 연결 : 13
+  - A와 C 사이 연결 : 25 이면,
+  - 23 + 13, 23 + 25, 13 + 25 중 값이 최소가 되도록 하기 위해 A-B, B-C를 연결하면 된다.
+### 크루스칼 알고리즘
+- 대표적인 최소 신장 트리 알고리즘
+- 모든 간선에 대해 정렬을 수행한 뒤에, 가장 거리가 짧은 간선부터 집합에 포함시긴다
+  - = 현재 상황에서 지금 당장 좋은 것부터 선택 = 그리디 알고리즘
+1. 간선 데이터를 비용에 따라 오름차순으로 정렬
+2. 간선 하나씩 확인하면서 현재의 간선이 사이클 발생시키는지 확인
+  - 2-1. 사이클 발생 X : 최소 신장 트리에 포함시킴
+  - 2-2. 사이클 발생 O : 최소 신장 트리에 포함시키지 않음
+3. 모든 간선에 대해 2. 반복
+
+#### 크루스칼 알고리즘 소스코드
+```py
+def find_parent(parent, x):
+  if parent[x] != x:
+    return find_parent(parent, parent[x])
+  return parent[x]
+
+def union_parent(parent, a, b):
+  a = find_parent(parent, a)
+  b = find_parent(parent, b)
+  if a < b: 
+    parent[b] = a
+  else:
+    parent[a] = b
+
+v, e = map(int, input().split())
+parent = [0]*(v+1)
+
+for i in range(1, v+1):
+  parent[i] = i
+
+# 여기부터 다름
+
+edges = []
+result = 0
+
+for _ in range(e):
+  a, b, cost = map(int, input().split())
+  # 비용순으로 정렬하기 위해, 튜플의 첫번째 원소 (cost) 를 비용으로 설정
+  edges.append((cost, a, b))
+
+edges.sort() #cost 순으로 정렬됨
+
+for edge in edges :
+  cost, a, b = edge
+  if find_parent(parent, a ) != find_parent(parent, b):
+    union_parent(parent, a, b)
+    result += cost
+
+print(result)
+```
+
+#### 결과
+```
+>> 7 9
+>> 1 2 29
+>> 1 5 75
+>> 2 3 35
+>> 2 6 34
+>> 3 4 7
+>> 4 6 23
+>> 4 7 13
+>> 5 6 53
+>> 6 7 25
+159
+```
+
+#### 💡 설명
+- 간선 개수가 E개일 때, 시간복잡도 O(ElogE)
+- 간선을 정렬하는 작업이 가장 오래걸리는데 E개면 ElogE 됨
+- 크루스칼 내부에서 사용되는 알고리즘 시간 : 정렬 알고리즘 > 서로소 집합 알고리즘 (무시!)
